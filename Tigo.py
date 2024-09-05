@@ -14,8 +14,7 @@ Originally By Nwali Ugonna Emmanuel (Emmanuel Tigo)
 ###################################################################################################################
 """
 
-from TigoAi.models import TigoGroq as TigoAi
-
+from TigoAi import client
 from telegram.ext import Updater, MessageHandler, Filters
 import telegram
 
@@ -27,7 +26,7 @@ messages = [{"role": "system", "content": "You are TelegramGPT, a helpful telegr
 
 def text_message(update, context):
     messages.append({"role": "user", "content": update.message.text})
-    response = openai.ChatCompletion.create(
+    response = client.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages
     )
