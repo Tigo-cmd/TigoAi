@@ -15,12 +15,16 @@ Originally By Nwali Ugonna Emmanuel (Emmanuel Tigo)
 """
 from typing import Final
 from TigoAi import client
+from TigoAi import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-
+# loads .env files for Api Tokens
+load_dotenv()
+# initializes telegram bot
 BOT_USERNAME: Final = "@TigoGPTBot"
 
+# context message to keep track of converstion more like a memory for the bot
 messages = [{"role": "system",
              "content": "You are TelegramGPT your name is Tigo_bot,"
                         " a helpful telegram bot that is always concise and polite in its answers."
@@ -37,6 +41,7 @@ async def Start_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
                                     "coding, and research. Whether you're looking for help with technical problems, "
                                     "brainstorming ideas,"
                                     " or simply need information, I'm here to assist. How can I help you today?")
+
 
 def text_message(update, context):
     messages.append({"role": "user", "content": update.message.text})
