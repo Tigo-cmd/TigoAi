@@ -17,14 +17,17 @@ from typing import Final
 from TigoAi import client
 from TigoAi import load_dotenv
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater
 
 # loads .env files for Api Tokens
 load_dotenv()
-# initializes telegram bot
+# token for telegram bot
+TELEGRAM_API_TOKEN = "7323343958:AAGp53vN3KP-nZJ_C5kDI_oBtoVQRoHQJjc"
+token: Final = TELEGRAM_API_TOKEN
+# initializes telegram bot to Username of the bot created by @botfather
 BOT_USERNAME: Final = "@TigoGPTBot"
 
-# context message to keep track of converstion more like a memory for the bot
+# context message to keep track of conversion more like a memory for the bot
 messages = [{"role": "system",
              "content": "You are TelegramGPT your name is Tigo_bot,"
                         " a helpful telegram bot that is always concise and polite in its answers."
@@ -32,6 +35,7 @@ messages = [{"role": "system",
                         "from answering questions and providing explanations to helping with creative writing, coding,"
                         " and research. you help with technical problems, brainstorming ideas, "
                         "and simple information, You're here to assist. Know how you can help today."}]
+
 
 # function to handle starting the bot
 async def Start_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
@@ -42,21 +46,62 @@ async def Start_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
                                     "brainstorming ideas,"
                                     " or simply need information, I'm here to assist. How can I help you today?")
 
+
 # function to handle the Help response and command
 async def Help_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
     await Update.message.reply_text("How can I help you today?")
 
 
 # function to handle the custom reply
-async def Custom_command(update: Update, Context: ContextTypes.DEFAULT_TYPE)
+async def Custom_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
     await Update.message.reply_text("I'm Here To Help")
 
 
-def response_handler(text: str) -> str:
-    return
+def response_handler(text: str):
+    if text:
+        messages.append({"role": "user", "content": text})
+        completion = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"{text}"
+                }
+            ],
+            temperature=1,
+            max_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+        for chunk in completion:
+            return print(chunk.choices[0].delta.content or "", end="")
+
+
+async def message_handler(update: Update, Context: ContextTypes.DEFAULT_TYPE):
+    message_type: str = update.message.chat.type
+    text: str = update.message.text
+
+    print(f"User ({update.message.chat.id} in {message_type}: {text}")
+
+    if message_type == "group":
+        if BOT_USERNAME in text:
+            new_text: str = text.replace(BOT_USERNAME, '').strip()
+            response: str = response_handler(text)
+        else:
+            return
+    else:
+        response: str = response_handler(text)
+
+    print('Bot:', response)
+    await Update.message.reply_text(response)
+
+
+async def error(update: Update, Context: ContextTypes.DEFAULT_TYPE):
+    print(f"Update {update} caused error {Context.error}")
+
 
 def text_message(update, context):
-    messages.append({"role": "user", "content": update.message.text})
     response = client.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages
@@ -66,9 +111,19 @@ def text_message(update, context):
     messages.append({"role": "assistant", "content": ChatGPT_reply})
 
 
+if __name__ == '__main__':
+    app = Application.builder().token().build()
 
-updater = Updater(TELEGRAM_API_TOKEN, use_context=True)
-dispatcher = updater.dispatcher
-dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), text_message))
-updater.start_polling()
-updater.idle()
+    # default commands
+    app.add_handler(CommandHandler('start', Start_command))
+    app.add_handler(CommandHandler('help', Help_command))
+    app.add_handler(CommandHandler('Custom', Custom_command))
+
+    # message commands
+    app.add_handler(MessageHandler(filters.TEXT, message_handler))
+
+    # Errors
+    app.add_handler(error)
+
+    # bot Polling
+    app.run_polling(poll_interval=3)
