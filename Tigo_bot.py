@@ -2,7 +2,7 @@
 """MAIN ENTRY OF THE PROGRAM HANDLES ALL FUNCTIONALITIES FOR THE AI"""
 
 ########################################################################
-#       AN OPEN AI INTEGRATION MY NWALI UGONNA EMMANUEL
+#       AN OPEN/Groq AI INTEGRATION MY NWALI UGONNA EMMANUEL
 #       GITHUB: https://github.com/Tigo-cmd/TigoAi
 #       All contributions are welcome!!!
 #       yea lets do some coding!!!!!!!!!!!!
@@ -19,6 +19,7 @@ from TigoAi import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+
 # loads .env files for Api Tokens
 load_dotenv()
 # token for telegram bot
@@ -26,6 +27,27 @@ TELEGRAM_API_TOKEN = "7323343958:AAGp53vN3KP-nZJ_C5kDI_oBtoVQRoHQJjc"
 TOKEN: Final = TELEGRAM_API_TOKEN
 # initializes telegram bot to Username of the bot created by @botfather
 BOT_USERNAME: Final = "@TigoGPTBot"
+# trying to use oop to achieve what I want for this
+
+
+class Bot:
+    """
+    I created this class to enable Groq API differentiate and store different user context based on id
+    works more like session so that the AI model can work for each different user it communicates with
+    I hope it makes sense cause that's how it sounds in my head lol 😁😄
+    """
+    def __init__(self, id: int, update: Update):
+        """
+
+        :param id: tracks id of the user for a new session
+        :param update: handles Update form telegram for all functionality
+        """
+        if id is None:
+            id = update.message.chat.id
+        else:
+            self.id = id
+            self.update = update
+
 
 # context message to keep track of conversion more like a memory for the bot
 messages = [{"role": "system",
