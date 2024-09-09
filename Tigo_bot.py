@@ -32,18 +32,22 @@ TELEGRAM_API_TOKEN = "7323343958:AAGp53vN3KP-nZJ_C5kDI_oBtoVQRoHQJjc"
 TOKEN: Final = TELEGRAM_API_TOKEN
 # initializes telegram bot to Username of the bot created by @botfather
 BOT_USERNAME: Final = "@TigoGPTBot"
+# USER_ID: int = 1131511127
 
 # context message to keep track of conversion more like a memory for the bot
 messages = [{"role": "system",
              "content": "You are TelegramGPT your name is Tigo_bot,"
-                        " a helpful telegram bot that is always concise and polite in its answers."
+                        " you're a helpful telegram bot that is always concise and polite in its answers."
                         "you're an AI designed to assist with a wide range of tasks, "
                         "from answering questions and providing explanations to helping with creative writing, coding,"
                         " and research. you help with technical problems, brainstorming ideas, "
                         "and simple information, You're here to assist. Know how you can help today."}]
-
-
+backup_message = messages.copy()
 # function to handle starting the bot
+
+user_contexts = {}
+
+
 async def Start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello! I'm Tigo_Bot, an AI designed to assist with a wide range of tasks,"
                                     "from answering questions and providing explanations to helping with creative "
@@ -63,14 +67,29 @@ async def Custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("I'm Here To Help")
 
 
-def response_handler(text: str):
+def get_user_context(user_id: int):
     """
+    Retrieves the context for a specific user. If the user is new, it initializes their context.
+    """
+    if user_id not in user_contexts:
+        # Initialize context for the new user
+        user_contexts[user_id] = [
+            {"role": "system", "content": "You are TelegramGPT, your name is Tigo_bot. You are here to assist users."}
+        ]
+    return user_contexts[user_id]
 
-    :param text: text to be passed by the user
-    :return: returns telegram bot response using the groq api so cool!!
+
+def response_handler(user_id: int, text: str):
     """
+       Handles the bot's response by interacting with the OpenAI API and maintaining the user-specific context.
+      :param user_id: The ID of the user sending the message
+      :param text: The text input by the user
+      :return: The bot's response as a string
+      """
     if text:
+        messages = get_user_context(user_id)
         messages.append({"role": "user", "content": text})
+        # Call The Api
         completion = client.chat.completions.create(
             model="llama3-70b-8192",
             messages=messages,
@@ -81,15 +100,20 @@ def response_handler(text: str):
             stop=None,
         )
         Bot_reply: str = ""
+        # Combine the chunks of the response
         for chunk in completion:
             Bot_reply += chunk.choices[0].delta.content or ""
+        # Append the bot's reply to the context
         messages.append({"role": "assistant", "content": Bot_reply})
+        # Update the user's context in the dictionary
+        user_contexts[user_id] = messages
         return Bot_reply
     else:
         return "Something went haywire"
 
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.message.chat.id
     message_type: str = update.message.chat.type
     text: str = update.message.text
 
@@ -98,11 +122,11 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if message_type == 'group':
         if BOT_USERNAME in text:
             new_text: str = text.replace(BOT_USERNAME, '').strip()
-            response: str = response_handler(new_text)
+            response: str = response_handler(user_id, text)
         else:
             return
     else:
-        response: str = response_handler(text)
+        response: str = response_handler(user_id, text)
 
     print('Bot:', response)
     await update.message.reply_text(response)
