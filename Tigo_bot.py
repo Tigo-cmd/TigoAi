@@ -17,13 +17,13 @@ from typing import Final
 from TigoAi import client
 from TigoAi import load_dotenv
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 # loads .env files for Api Tokens
 load_dotenv()
 # token for telegram bot
 TELEGRAM_API_TOKEN = "7323343958:AAGp53vN3KP-nZJ_C5kDI_oBtoVQRoHQJjc"
-token: Final = TELEGRAM_API_TOKEN
+TOKEN: Final = TELEGRAM_API_TOKEN
 # initializes telegram bot to Username of the bot created by @botfather
 BOT_USERNAME: Final = "@TigoGPTBot"
 
@@ -38,8 +38,8 @@ messages = [{"role": "system",
 
 
 # function to handle starting the bot
-async def Start_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
-    await Update.message.reply_text("Hello! I'm Tigo_Bot, an AI designed to assist with a wide range of tasks,"
+async def Start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Hello! I'm Tigo_Bot, an AI designed to assist with a wide range of tasks,"
                                     "from answering questions and providing explanations to helping with creative "
                                     "writing,"
                                     "coding, and research. Whether you're looking for help with technical problems, "
@@ -48,71 +48,71 @@ async def Start_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
 
 
 # function to handle the Help response and command
-async def Help_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
-    await Update.message.reply_text("How can I help you today?")
+async def Help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("How can I help you today?")
 
 
 # function to handle the custom reply
-async def Custom_command(update: Update, Context: ContextTypes.DEFAULT_TYPE):
-    await Update.message.reply_text("I'm Here To Help")
+async def Custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("I'm Here To Help")
 
 
 def response_handler(text: str):
-    if text:
-        messages.append({"role": "user", "content": text})
-        completion = client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"{text}"
-                }
-            ],
-            temperature=1,
-            max_tokens=1024,
-            top_p=1,
-            stream=True,
-            stop=None,
-        )
-        for chunk in completion:
-            return print(chunk.choices[0].delta.content or "", end="")
+    # if text:
+    #     messages.append({"role": "user", "content": text})
+    #     completion = client.chat.completions.create(
+    #         model="llama3-70b-8192",
+    #         messages=messages,
+    #         temperature=1,
+    #         max_tokens=1024,
+    #         top_p=1,
+    #         stream=False,
+    #         stop=None,
+    #     )
+    #     Bot_reply: str = completion["choices"][0]["message"]["content"]
+    #     messages.append({"role": "assistant", "content": Bot_reply})
+    #     return Bot_reply
+    if "hello" in text:
+        return "Im good!!"
+    else:
+        return "Something went haywire"
 
 
-async def message_handler(update: Update, Context: ContextTypes.DEFAULT_TYPE):
+async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
     text: str = update.message.text
 
     print(f"User ({update.message.chat.id} in {message_type}: {text}")
 
-    if message_type == "group":
+    if message_type == 'group':
         if BOT_USERNAME in text:
             new_text: str = text.replace(BOT_USERNAME, '').strip()
-            response: str = response_handler(text)
+            response: str = response_handler(new_text)
         else:
             return
     else:
         response: str = response_handler(text)
 
     print('Bot:', response)
-    await Update.message.reply_text(response)
+    await update.message.reply_text(response)
 
 
 async def error(update: Update, Context: ContextTypes.DEFAULT_TYPE):
     print(f"Update {update} caused error {Context.error}")
 
 
-def text_message(update, context):
-    response = client.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=messages
-    )
-    ChatGPT_reply = response["choices"][0]["message"]["content"]
-    update.message.reply_text(text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
-    messages.append({"role": "assistant", "content": ChatGPT_reply})
+# def text_message(update, context):
+#     response = client.ChatCompletion.create(
+#         model="gpt-3.5-turbo",
+#         messages=messages
+#     )
+#     ChatGPT_reply = response["choices"][0]["message"]["content"]
+#     update.message.reply_text(text=f"*[Bot]:* {ChatGPT_reply}", parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 if __name__ == '__main__':
-    app = Application.builder().token().build()
+    print('Starting Bot......')
+    app = Application.builder().token(TOKEN).build()
 
     # default commands
     app.add_handler(CommandHandler('start', Start_command))
@@ -123,7 +123,8 @@ if __name__ == '__main__':
     app.add_handler(MessageHandler(filters.TEXT, message_handler))
 
     # Errors
-    app.add_handler(error)
+    app.add_error_handler(error)
 
     # bot Polling
+    print('Polling......')
     app.run_polling(poll_interval=3)
