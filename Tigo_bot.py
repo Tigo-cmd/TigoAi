@@ -58,20 +58,22 @@ async def Custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def response_handler(text: str):
-    # if text:
-    #     messages.append({"role": "user", "content": text})
-    #     completion = client.chat.completions.create(
-    #         model="llama3-70b-8192",
-    #         messages=messages,
-    #         temperature=1,
-    #         max_tokens=1024,
-    #         top_p=1,
-    #         stream=False,
-    #         stop=None,
-    #     )
-    #     Bot_reply: str = completion["choices"][0]["message"]["content"]
-    #     messages.append({"role": "assistant", "content": Bot_reply})
-    #     return Bot_reply
+    if text:
+        messages.append({"role": "user", "content": text})
+        completion = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=messages,
+            temperature=1,
+            max_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
+        )
+        Bot_reply: str = ""
+        for chunk in completion:
+            Bot_reply += chunk.choices[0].delta.content or ""
+        messages.append({"role": "assistant", "content": Bot_reply})
+        return Bot_reply
     if "hello" in text:
         return "Im good!!"
     else:
