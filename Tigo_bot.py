@@ -58,6 +58,11 @@ async def Custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def response_handler(text: str):
+    """
+
+    :param text: text to be passed by the user
+    :return: returns telegram bot response using the groq api so cool!!
+    """
     if text:
         messages.append({"role": "user", "content": text})
         completion = client.chat.completions.create(
@@ -74,8 +79,6 @@ def response_handler(text: str):
             Bot_reply += chunk.choices[0].delta.content or ""
         messages.append({"role": "assistant", "content": Bot_reply})
         return Bot_reply
-    if "hello" in text:
-        return "Im good!!"
     else:
         return "Something went haywire"
 
