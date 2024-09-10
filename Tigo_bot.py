@@ -168,4 +168,5 @@ if __name__ == '__main__':
 
     # bot Polling
     print('Polling......')
+    print('Waiting For User Input......')
     app.run_polling(poll_interval=3)
