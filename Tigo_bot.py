@@ -2,7 +2,7 @@
 """MAIN ENTRY OF THE PROGRAM HANDLES ALL FUNCTIONALITIES FOR THE AI"""
 
 ########################################################################
-#       AN OPEN AI INTEGRATION MY NWALI UGONNA EMMANUEL
+#       AN OPEN/GROQ AI TELEGRAM BOT INTEGRATION MY NWALI UGONNA EMMANUEL
 #       GITHUB: https://github.com/Tigo-cmd/TigoAi
 #       All contributions are welcome!!!
 #       yea lets do some coding!!!!!!!!!!!!
@@ -18,7 +18,6 @@ from TigoAi import client
 from TigoAi import load_dotenv
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-
 
 """
 still trying to make enable Groq API differentiate and store different user context based on id
@@ -73,9 +72,16 @@ def get_user_context(user_id: int):
     """
     if user_id not in user_contexts:
         # Initialize context for the new user
-        user_contexts[user_id] = [
-            {"role": "system", "content": "You are TelegramGPT, your name is Tigo_bot. You are here to assist users."}
-        ]
+        user_contexts[user_id] = [{"role": "system",
+                                   "content": "You are TelegramGPT your name is Tigo_bot,"
+                                              "you're a helpful telegram bot that is always concise and polite in its "
+                                              "answers."
+                                              "you're an AI designed to assist with a wide range of tasks, "
+                                              "from answering questions and providing explanations to helping with "
+                                              "creative writing, coding,"
+                                              " and research. you help with technical problems, brainstorming ideas, "
+                                              "and simple information, You're here to assist. Know how you can help "
+                                              "today."}]
     return user_contexts[user_id]
 
 
@@ -122,7 +128,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if message_type == 'group':
         if BOT_USERNAME in text:
             new_text: str = text.replace(BOT_USERNAME, '').strip()
-            response: str = response_handler(user_id, text)
+            response: str = response_handler(user_id, new_text)
         else:
             return
     else:
