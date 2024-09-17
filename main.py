@@ -27,5 +27,7 @@ completion = client.chat.completions.create(
 )
 
 print(f"TigoAI Response: ")
+bot = ""
 for chunk in completion:
-    print(chunk.choices[0].delta.content or "", end="")
+    bot += chunk.choices[0].delta.content or ""
+print(bot)
