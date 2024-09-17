@@ -5,6 +5,16 @@
 
 ### Chat with Tigo_bot on Telegram 
 <a href="https://t.me/TigoGPTBot">@Tigo_bot</a>
+<h4>Features</h4>
+
+<ol>
+<li>
+Speech to Text Response
+</li>
+<li>
+Real Time Chat and Response from Groq API
+</li
+</ol>
 
 ## Overview
 
