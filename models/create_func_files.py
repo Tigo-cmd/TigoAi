@@ -13,12 +13,12 @@ import subprocess
 # import sys
 
 
-def is_exists(filename="", content=[]):
+def is_exists(filename: str = "", content: list[str] = []):
     if content is None:
-        content = []
+        content: list[str] = []
     if os.path.exists(filename):
         """checks if file exists in the current directory and overwrites when prompted"""
-        overwrite = input(f"{filename} already exists Overwrite?(Y/N): ").lower()
+        overwrite: str = input(f"{filename} already exists Overwrite?(Y/N): ").lower()
         if 'y' in overwrite:
             prototype = input(f"prototype for {filename}: ")
             content.append(f"{prototype}\n")
@@ -31,7 +31,7 @@ def is_exists(filename="", content=[]):
         else:
             print("invalid input")
     else:
-        prototype = input(f"prototype for {filename}: ")
+        prototype: str = input(f"prototype for {filename}: ")
         content.append(f"{prototype}\n")
         with open(filename, 'w', encoding='utf-8') as f:
             # creates file and writes contents to each line of the file
@@ -39,7 +39,7 @@ def is_exists(filename="", content=[]):
         os.chmod(filename, 0o764)
 
 
-def source_code_create(filename="", prototype=""):
+def source_code_create(filename: str = "", prototype: str = ""):
     """handles creating python functions files
      and setting necessary permissions
         Args:
@@ -57,31 +57,31 @@ def source_code_create(filename="", prototype=""):
             print("created an empty file")
 
 
-def create_header_files(filename=""):
+def create_header_files(filename: str = ""):
     """function for creating c header files and appending c prototypes to the file"""
-    header = ""
+    header: str = ""
     if os.path.exists(filename):
         pass
     else:
         header = filename
-        content = [f"ifndef {header}\ndefine {header}\n", "#include <stdio.h>", "\n"]
+        content: list[str] = [f"ifndef {header}\ndefine {header}\n", "#include <stdio.h>", "\n"]
         with open(header, 'w', encoding='utf-8') as file:
             file.writelines(content)
     return header
 
 
-def create_c_main_files(filename=""):
+def create_c_main_files(filename: str = ""):
     """creates C main files
     Args:
         filename: file to be created must be a c extension
     """
-    content = [f"#include \"{header}\"\n", f"/**\n*{filename}-\n"
-                                             f"* @param\n* @param\n* Description:"
-                                             f" \n* Return: Always(0) success\n*/\n",
-               "int main()\n{\n\tprintf(\"Welcome\")\n\n}"]
+    content: list[str] = [f"#include \"{header}\"\n", f"/**\n*{filename}-\n"
+                                                 f"* @param\n* @param\n* Description:"
+                                                 f" \n* Return: Always(0) success\n*/\n",
+                     "int main()\n{\n\tprintf(\"Welcome\")\n\n}"]
     if os.path.exists(filename):
         """checks if the fil exists in the current dir"""
-        overwrite = input(f"{filename} already exists Overwrite?(Y/N): ").lower()
+        overwrite: str = input(f"{filename} already exists Overwrite?(Y/N): ").lower()
         if 'y' in overwrite:
             with open(filename, 'w', encoding='utf-8') as file:
                 file.writelines(content)
@@ -95,48 +95,48 @@ def create_c_main_files(filename=""):
             file.writelines(content)
 
 
-def create_py_main_files(filename=""):
+def create_py_main_files(filename: str = ""):
     """handles the creation of python main files"""
 
-    content = ["#!/usr/bin/python3\n", '"""module documentation"""\n\n', "if __name__ == '__main__':"
-                                                                         "    "]
+    content: list[str] = ["#!/usr/bin/python3\n", '"""module documentation"""\n\n', "if __name__ == '__main__':"
+                                                                               "    "]
     with open(filename, 'w', encoding='utf-8') as file:
         file.writelines(content)
     os.chmod(filename, 0o764)
 
 
-def create_cfile(filename="", prototype=""):
+def create_cfile(filename: str = "", prototype: str = ""):
     """function for creating c function files"""
-    header = "main.h"
+    header: str = "main.h"
     if os.path.exists(header):
         pass
     else:
-        header = ""
-    content = [f"#include \"{header}\"\n", f"/**\n*{filename}-\n"
-                                             f"* @param\n* @param\n* Description:"
-                                             f" \n* Return: Always(0) success\n*/\n", f"{prototype}\n",
-               #  contents to write to the file
-               "{\n}" if prototype != "" else ""]
-    is_exists(filename, content) # class the function and creates
+        header: str = ""
+    content: list[str] = [f"#include \"{header}\"\n", f"/**\n*{filename}-\n"
+                                                 f"* @param\n* @param\n* Description:"
+                                                 f" \n* Return: Always(0) success\n*/\n", f"{prototype}\n",
+                     #  contents to write to the file
+                     "{\n}" if prototype != "" else ""]
+    is_exists(filename, content)  # class the function and creates
     update_header_file(prototype)
 
 
-def create_pyfile(filename=""):
+def create_pyfile(filename: str = ""):
     """function for creating python function files"""
 
-    content = ["#!/usr/bin/python3\n", '"""module documentation"""\n\n']
+    content: list[str] = ["#!/usr/bin/python3\n", '"""module documentation"""\n\n']
     is_exists(filename, content)  # class the function and creates
 
 
-def update_header_file(prototype, filename):
+def update_header_file(prototype: str, filename: str) -> None:
     # Read the contents of main.h except for the last line
-    header = "main.h"
+    header: str = "main.h"
     if os.path.exists(header):
         pass
     else:
         header = filename
     with open(header, 'r') as file:
-        lines = file.readlines()[:-1]
+        lines: list[str] = file.readlines()[:-1]
 
     # Append the new function prototype and #endif
     lines.append(prototype + '\n')
@@ -147,7 +147,7 @@ def update_header_file(prototype, filename):
         file.writelines(lines)
 
 
-def file_create(filename=""):
+def file_create(filename: str = "") -> None:
     """creates normal python file users adds codes to taste
         Args:
             filename: file to be creates by function
@@ -165,7 +165,7 @@ def file_create(filename=""):
         print("created an empty file")
 
 
-def test_prototype(filename=""):
+def test_prototype(filename: str = ""):
     """this creates a test file prototype with common startup lines"""
     content = ["#!/usr/bin/python3\n", '"""module documentation"""',
                "import unittest\n\n", f"class Test_{filename}(unittest.Testcase):"
@@ -188,7 +188,7 @@ def test_prototype(filename=""):
         os.chmod(filename, 0o764)
 
 
-def delete_files(filename=""):
+def delete_files(filename: str = ""):
     """handles the deletion of files """
     if os.path.exists(filename):
         subprocess.run(["rm", "-rfi", f"{filename}"])
