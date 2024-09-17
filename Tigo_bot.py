@@ -14,11 +14,14 @@ Originally By Nwali Ugonna Emmanuel (Emmanuel Tigo)
 ###################################################################################################################
 """
 from typing import Final
-from TigoAi import client
-from TigoAi import load_dotenv
-from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-
+from telegram import Update
+# from TigoAi import client
+# from TigoAi import load_dotenv
+from groq import Groq
+from dotenv import load_dotenv
+from moviepy.editor import AudioFileClip
+import os
 """
 still trying to make enable Groq API differentiate and store different user context based on id
 works more like session so that the AI model can work for each different user it communicates with
@@ -26,6 +29,7 @@ I hope it makes sense cause that's how it sounds in my head lol 😁😄
 """
 # loads .env files for Api Tokens
 load_dotenv()
+client = Groq()
 # token for telegram bot
 TELEGRAM_API_TOKEN = "7323343958:AAGp53vN3KP-nZJ_C5kDI_oBtoVQRoHQJjc"
 TOKEN: Final = TELEGRAM_API_TOKEN
@@ -34,20 +38,23 @@ BOT_USERNAME: Final = "@TigoGPTBot"
 # USER_ID: int = 1131511127
 
 # context message to keep track of conversion more like a memory for the bot
-messages = [{"role": "system",
-             "content": "You are TelegramGPT your name is Tigo_bot,"
-                        " you're a helpful telegram bot that is always concise and polite in its answers."
-                        "you're an AI designed to assist with a wide range of tasks, "
-                        "from answering questions and providing explanations to helping with creative writing, coding,"
-                        " and research. you help with technical problems, brainstorming ideas, "
-                        "and simple information, You're here to assist. Know how you can help today."}]
+messages: list[dict[str, str]] = [{"role": "system",
+                                   "content": "You are TelegramGPT your name is Tigo_bot,"
+                                              "you're a helpful telegram bot that is always concise and polite in its "
+                                              "answers."
+                                              "you're an AI designed to assist with a wide range of tasks, "
+                                              "from answering questions and providing explanations to helping with "
+                                              "creative writing, coding,"
+                                              " and research. you help with technical problems, brainstorming ideas, "
+                                              "and simple information, You're here to assist. Know how you can help "
+                                              "today."}]
 backup_message = messages.copy()
 # function to handle starting the bot
 
-user_contexts = {}
+user_contexts: dict = {}
 
 
-async def Start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def Start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Hello! I'm Tigo_Bot, an AI designed to assist with a wide range of tasks,"
                                     "from answering questions and providing explanations to helping with creative "
                                     "writing,"
@@ -57,12 +64,12 @@ async def Start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # function to handle the Help response and command
-async def Help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def Help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("How can I help you today?")
 
 
 # function to handle the custom reply
-async def Custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def Custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("I'm Here To Help")
 
 
@@ -85,12 +92,52 @@ def get_user_context(user_id: int):
     return user_contexts[user_id]
 
 
-def response_handler(user_id: int, text: str):
+async def voice_messsage(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
-       Handles the bot's response by interacting with the OpenAI API and maintaining the user-specific context.
+    handles voice messages to text translations
+    """
+    user_id: int = update.message.chat.id
+    message_type: str = update.message.chat.type
+
+    await update.message.reply_text("I've received a voice message! Please give me a second to respond :)")
+    voice_file = await context.bot.getFile(update.message.voice.file_id)
+    await voice_file.download_to_drive("voice_message.ogg")
+    audio_clip = AudioFileClip("voice_message.ogg")
+    audio_clip.write_audiofile("voice_message.mp3")
+    with open("voice_message.mp3", "rb") as file:
+        transcript = client.audio.transcriptions.create(
+            file=("voice_message.mp3",
+                  file.read()),
+            model="whisper-large-v3",
+            timeout=120
+
+        )
+    await update.message.reply_text(
+        text=f"*[You]:* _{transcript.text}_",
+    )
+
+    print(f"User ({update.message.chat.id} in {message_type}: {transcript.text}")
+
+    if message_type == 'group':
+        if BOT_USERNAME in transcript.text:
+            new_text: str = transcript.text.replace(BOT_USERNAME, '').strip()
+            response: str = response_handler(user_id, new_text)
+        else:
+            return
+    else:
+        response: str = response_handler(user_id, transcript.text)
+
+    print('Bot:', response)
+    await update.message.reply_text(response)
+    os.remove("voice_message.ogg")
+    os.remove("voice_message.mp3")
+
+def response_handler(user_id: int, text: str) -> str:
+    """
+       Handles the bots response by interacting with the OpenAI API and maintaining the user-specific context.
       :param user_id: The ID of the user sending the message
       :param text: The text input by the user
-      :return: The bot's response as a string
+      :return: The bots response as a string
       """
     if text:
         messages = get_user_context(user_id)
@@ -118,7 +165,10 @@ def response_handler(user_id: int, text: str):
         return "Something went haywire"
 
 
-async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def message_handler(
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE
+) -> None:
     user_id = update.message.chat.id
     message_type: str = update.message.chat.type
     text: str = update.message.text
@@ -138,7 +188,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(response)
 
 
-async def error(update: Update, Context: ContextTypes.DEFAULT_TYPE):
+async def error(update: Update, Context: ContextTypes.DEFAULT_TYPE) -> None:
     print(f"Update {update} caused error {Context.error}")
 
 
@@ -162,6 +212,9 @@ if __name__ == '__main__':
 
     # message commands
     app.add_handler(MessageHandler(filters.TEXT, message_handler))
+
+    # voice commands
+    app.add_handler(MessageHandler(filters.VOICE, voice_messsage))
 
     # Errors
     app.add_error_handler(error)
