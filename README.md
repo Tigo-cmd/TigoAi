@@ -4,7 +4,7 @@
 **Country**: Nigeria  
 
 ### Chat with Tigo_bot on Telegram 
-<a href="https://t.me/TigoGPTBot" target="_blank">@Tigo_bot</a>
+<a href="https://t.me/TigoGPTBot" target="blank">@Tigo_bot</a>
 <h4>Features</h4>
 
 <ol>
