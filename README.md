@@ -3,6 +3,9 @@
 **Author**: Nwali Ugonna Emmanuel
 **Country**: Nigeria  
 
+### Chat with Tigo_bot on Telegram 
+<a href="https://t.me/TigoGPTBot">@Tigo_bot</a>
+
 ## Overview
 
 TigoAi is a user-friendly command-line source control tool designed to simplify the management of your project's source code directly from your terminal. It streamlines version control workflows and allows for efficient code management with minimal commands.
@@ -84,8 +87,7 @@ TigoAi would integrate Ai for more functionalities and easy access to solution f
 
 Imagine you just open the terminal and ask an Ai for any question, to perform some tasks just like SIRI on the IOS..
  
-### Chat with Tigo_bot on Telegram 
-<a href="https://t.me/TigoGPTBot">@Tigo_bot</a>
+
 
 
 
