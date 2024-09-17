@@ -113,7 +113,7 @@ async def voice_messsage(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         )
     await update.message.reply_text(
-        text=f"*[You]:* _{transcript.text}_",
+        text=f"You Said: {transcript.text}",
     )
 
     print(f"User ({update.message.chat.id} in {message_type}: {transcript.text}")
