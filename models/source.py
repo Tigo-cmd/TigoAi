@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 ########################################################################
-#       AN OPEN/GROQ AI INTEGRATION MY NWALI UGONNA EMMANUEL
+#       AN OPEN/GROQ AI CLI INTEGRATION MY NWALI UGONNA EMMANUEL
 #       GITHUB: https://github.com/Tigo-cmd/TigoAi
 #       All contributions are welcome!!!
 #       yea lets do some coding!!!!!!!!!!!!
 #########################################################################
-"""Source classes to handle all OpenAi functionalities and trained models
+"""Source classes to handle all GroqAPI functionalities and trained models
                         BY Nwali Ugonna Emmanuel
  """
 
 from __future__ import annotations
 
+from typing import Callable
+
+from transformers import pipeline
 from groq import Groq
 import subprocess
 import os
@@ -18,56 +21,96 @@ import requests
 from dotenv import load_dotenv
 
 
+def find_patterns(func) -> Callable[[str, str], str | bool]:
+    """
+    this function tries to find synonyms or some common words in message
+    to ascertain which operation to be run as related to the user's wants.
+    :param func: function to be passed to utilize the synonym recognition
+    :param pattern: pattern to check the synonym for.
+    :param message: user request or commands to Ai
+    :return:
+    """
+    def process_patterns(message: str, pattern: str):
+        # Load a pre-trained fill-mask model (BERT)
+        unmasker = pipeline('fill-mask', model='bert-base-uncased')
+        # Example: Find synonyms for the word "find"
+        # Get predictions for the masked word
+        if message is None:
+            return "Nothing to find here"
+        if pattern:
+            predictions = unmasker(f'[{pattern}]')
+            for prediction in predictions:
+                if prediction in message:
+                    func(message, pattern, prediction)
+                    return True
+                else:
+                    "Not Found"
+                    return False
+        else:
+            return "No pattern to find"
+    return process_patterns
+
+
 class TigoGroq:
     """this handles Api tokens and requests
     this class clones the GROQ init function and re-initializes the arguments
     so that when the class is called it set every functionality needed for the model to run
     """
-    Apikey  = os.getenv("API_KEY")
-    content: str = ""
-    context = [
-        {"role": f"{...}", "message": f"{content}"}
+    client = None
+    _Apikey = os.getenv("GROQ_API_KEY")
+    context: list[dict[str, str]] = [
+        {"role": "system", "content": "You are CLI Assistant your name is Tigo,"
+                                      "you're a helpful Bot that is always concise and polite in its "
+                                      "answers."
+                                      "you're an AI designed to assist with a wide range of tasks, "
+                                      "from answering questions and providing explanations to "
+                                      "creative writing, coding, debug files, create files, find solution with"
+                                      " and research. you help with technical problems, brainstorming ideas, "
+                                      "and simple information, You're here to assist. you will help this user"}
     ]
+
     def __init__(
             self,
-            *,
-            api_key,
-            base_url,
-            timeout,
-            max_retries,
-            default_headers,
-            default_query,
-            http_client,
-            _strict_response_validation: bool = False,
     ) -> None:
         """Constructor initialized at first call"""
-        if TigoGroq.Apikey is None:
+        if self._Apikey is None:
+            """
+            checks if the apikey is present in the environment variable
+             else loads from env file using python-loadenv
+            """
             load_dotenv()
-        else:
-            self.GROQ_API_KEY = TigoGroq.Apikey
-        self.apikey = api_key
-        self.base_url = base_url
-        self.timeout = timeout
-        self.default_headers = default_headers
-        self.max_retries = max_retries
-        self.default_query = default_query
-        self.http_client = http_client
-        self.client = Groq(TigoGroq.Apikey)
-    def get_response_from_ai(self, message, temp=1, max_token=1024, Top_p=1, Stream=True, stopper=None ):
-        """gets response from the AI and messages to print to standard output"""
-        self.completion = self.client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages= [
-                {
-                    "role": f"{...}",
-                    "message": f"{message}"
-                }
-            ]
+        self.client = Groq()
 
-            self.temperature=temp,
-            self.max_tokens=max_token,
-            self.top_p=Top_p,
-            self.stream=Stream,
-            self.stop = stopper
+    def get_context(self, context: str):
+        """
+
+        :param context: tracks conversations and context with users
+        :return: nothing
+        """
+        pass
+
+    def get_response_from_ai(self, message):
+        """returns response from the AI and messages to print to standard output"""
+        self.context.append({"role": "user", "content": message})
+        completion = self.client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=self.context,
+            temperature=1,
+            max_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
         )
-        return [chunck.choices[0].delta.content for chunck in self.completion]
+        reply: str = ""
+        for chunk in completion:
+            reply += chunk.choices[0].delta.content or ""
+        self.context.append({"role": "assistant", "content": reply})
+        return reply
+
+    def store_retrive_context(self, filename: str):
+        """
+
+        :param filename:
+        :return:
+        """
+        pass
