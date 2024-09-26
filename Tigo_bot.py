@@ -16,8 +16,6 @@ Originally By Nwali Ugonna Emmanuel (Emmanuel Tigo)
 from typing import Final
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from telegram import Update
-# from TigoAi import client
-# from TigoAi import load_dotenv
 from groq import Groq
 from dotenv import load_dotenv
 from moviepy.editor import AudioFileClip
