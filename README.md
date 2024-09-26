@@ -8,12 +8,8 @@
 <h4>Features</h4>
 
 <ol>
-<li>
-Speech to Text Response
-</li>
-<li>
-Real Time Chat and Response from Groq API
-</li
+<li>Speech to Text Response</li>
+<li>Real Time Chat and Response from Groq API</li>
 </ol>
 
 ## Overview
