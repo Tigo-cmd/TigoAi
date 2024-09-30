@@ -10,45 +10,14 @@
  """
 
 from __future__ import annotations
-
+from secrets import choice
+from string import ascii_letters, digits, punctuation
 from typing import Callable
-
-from transformers import pipeline
 from groq import Groq
 import subprocess
 import os
 import requests
 from dotenv import load_dotenv
-
-
-def find_patterns(func) -> Callable[[str, str], str | bool]:
-    """
-    this function tries to find synonyms or some common words in message
-    to ascertain which operation to be run as related to the user's wants.
-    :param func: function to be passed to utilize the synonym recognition
-    :param pattern: pattern to check the synonym for.
-    :param message: user request or commands to Ai
-    :return:
-    """
-    def process_patterns(message: str, pattern: str):
-        # Load a pre-trained fill-mask model (BERT)
-        unmasker = pipeline('fill-mask', model='bert-base-uncased')
-        # Example: Find synonyms for the word "find"
-        # Get predictions for the masked word
-        if message is None:
-            return "Nothing to find here"
-        if pattern:
-            predictions = unmasker(f'[{pattern}]')
-            for prediction in predictions:
-                if prediction in message:
-                    func(message, pattern, prediction)
-                    return True
-                else:
-                    "Not Found"
-                    return False
-        else:
-            return "No pattern to find"
-    return process_patterns
 
 
 class TigoGroq:
@@ -89,7 +58,7 @@ class TigoGroq:
         """
         pass
 
-    def get_response_from_ai(self, message):
+    def get_response_from_ai(self, message: str):
         """returns response from the AI and messages to print to standard output"""
         self.context.append({"role": "user", "content": message})
         completion = self.client.chat.completions.create(
