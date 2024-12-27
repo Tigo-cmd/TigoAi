@@ -1,3 +1,6 @@
+from TigoAi.models.controls import pass_gen, clear_screen
+
+
 keywords: list[str] = [
     'create a file to do something',
     'analyze a giving error',

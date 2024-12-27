@@ -19,16 +19,40 @@ Originally By Nwali Ugonna Emmanuel (Emmanuel Tigo)
 
 from models.source import TigoGroq, load_dotenv
 from argparse import ArgumentParser, Namespace
-from TigoAi.models.controls import pass_gen
-# initialize color for crossPlatform compatibility
+from colorama import Fore, Style, init
+from TigoAi.models import pass_gen, clear_screen
 
 
 load_dotenv()  # typically loads API keys form underlining env file
 client = TigoGroq()  # calls groqAPI client
 
 
-def main() -> None:
+def interactive_mode() -> None:
+    # initialize color for crossPlatform compatibility
+    init(autoreset=True)
 
+    """for interactive mode with Tigo"""
+    try:
+        tigo_design: str = '''
+          TTTTT  III   GGGG     OOOO
+            T     I  G         O    O
+            T     I  G   GG    O    O
+            T     I  G     G   O    O
+            T    III   GGGG     OOOO
+        '''
+        print(Fore.MAGENTA + Style.BRIGHT + "Tigo CLI AI Assistant") # gives te text color magenta
+        print(Fore.GREEN + tigo_design) # gives the tigo design text a green color
+        while True:
+            user_message: str = input("Message > ")
+            if "exit" in user_message:
+                print(Fore.BLUE + "Tigo 🧒 > ", client.get_response_from_ai(user_message + " 👋.."))
+                break
+            print(Fore.BLUE + "Tigo 🧒 > ", client.get_response_from_ai(user_message))
+    except KeyboardInterrupt:
+        print("\nProcess interrupted. Exiting...")
+
+
+def main() -> None:
     # creating an into texts with argparse module
     entry = ArgumentParser(description="Tigo CLI Assistant", prog="Tigo")
     entry.add_argument('-i', '--interactive', type=str, nargs="*", choices=["chat", "start"], help="Runs in "
@@ -37,7 +61,7 @@ def main() -> None:
     args: Namespace = entry.parse_args()
 
     length = args.passgen
-# arguments implementations
+    # arguments implementations
 
     # interactive mode with Tigo
     if args.interactive:
