@@ -17,14 +17,23 @@ Originally By Nwali Ugonna Emmanuel (Emmanuel Tigo)
 ###################################################################################################################
 """
 
+import os
 from models.source import TigoGroq, load_dotenv
 from argparse import ArgumentParser, Namespace
 from colorama import Fore, Style, init
-from TigoAi.models import pass_gen, clear_screen
-
+from models.controls import pass_gen, clear_screen
+from models.LanguageProcesssing import similarity_comprehension, get_best_match
 
 load_dotenv()  # typically loads API keys form underlining env file
 client = TigoGroq()  # calls groqAPI client
+
+keywords: list[str] = [
+    'create a file to do something',
+    'analyze a giving error',
+    'debug a file with some error to be provided',
+    'compile or run a file and print output',
+    'explain something',
+]
 
 
 def interactive_mode() -> None:
@@ -40,11 +49,11 @@ def interactive_mode() -> None:
             T     I  G     G   O    O
             T    III   GGGG     OOOO
         '''
-        print(Fore.MAGENTA + Style.BRIGHT + "Tigo CLI AI Assistant") # gives te text color magenta
-        print(Fore.GREEN + tigo_design) # gives the tigo design text a green color
+        print(Fore.MAGENTA + Style.BRIGHT + "Tigo CLI AI Assistant")  # gives te text color magenta
+        print(Fore.GREEN + tigo_design)  # gives the tigo design text a green color
         while True:
-            user_message: str = input("Message > ")
-            if "exit" in user_message:
+            user_message: str = input(Fore.YELLOW + "Message 👉 ").strip('\n')
+            if "exit" in user_message or "bye" in user_message:
                 print(Fore.BLUE + "Tigo 🧒 > ", client.get_response_from_ai(user_message + " 👋.."))
                 break
             print(Fore.BLUE + "Tigo 🧒 > ", client.get_response_from_ai(user_message))
@@ -57,7 +66,9 @@ def main() -> None:
     entry = ArgumentParser(description="Tigo CLI Assistant", prog="Tigo")
     entry.add_argument('-i', '--interactive', type=str, nargs="*", choices=["chat", "start"], help="Runs in "
                                                                                                    "interactive mode")
-    entry.add_argument('-p', '--passgen', type=int, nargs='?', metavar="password length", help="password generator")
+    entry.add_argument('-p', '--passgen', type=int, nargs='?', metavar="password length", help="password "
+                                                                                               "generator")
+    entry.add_argument('text', nargs='+', help="enter A text to to do something")
     args: Namespace = entry.parse_args()
 
     length = args.passgen
@@ -65,15 +76,19 @@ def main() -> None:
 
     # interactive mode with Tigo
     if args.interactive:
+        clear_screen()
         for _ in args.interactive:
             if len(args.interactive) == 0:
                 print(args.interactive)
             interactive_mode()
 
-    # password generator
     if args.passgen:
         i = args.passgen
-        print(pass_gen(i if i is not None else 16))
+        print(pass_gen() if i is None else pass_gen(i))
+
+    if args.text:
+        text = ' '.join(args.text)
+        print(get_best_match(text, keywords))
 
 
 if __name__ == '__main__':
