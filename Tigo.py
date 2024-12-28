@@ -33,6 +33,8 @@ keywords: list[str] = [
     'debug a file with some error to be provided',
     'compile or run a file and print output',
     'explain something',
+    'appreciation to show gratitude',
+    'commendation on a task done'
 ]
 
 
@@ -88,7 +90,10 @@ def main() -> None:
 
     if args.text:
         text = ' '.join(args.text)
-        print(get_best_match(text, keywords))
+        if get_best_match(text, keywords) == keywords[4]:
+            print(Fore.YELLOW + "Tigo 🧒 > ", client.get_response_from_ai(text))
+        if get_best_match(text, keywords) == keywords[5]:
+            print(Fore.LIGHTYELLOW_EX + "Tigo 🧒 > ", client.get_response_from_ai(text))
 
 
 if __name__ == '__main__':
