@@ -64,25 +64,12 @@ def source_code_create(filename="", prototype=""):
             print("created an empty file")
 
 
-def create_header_files(filename=""):
-    """function for creating c header files and appending c prototypes to the file"""
-    header = ""
-    if os.path.exists(filename):
-        pass
-    else:
-        header = filename
-        content = [f"ifndef {header}\ndefine {header}\n", "#include <stdio.h>", "\n"]
-        with open(header, 'w', encoding='utf-8') as file:
-            file.writelines(content)
-    return header
-
-
 def create_c_main_files(filename=""):
     """creates C main files
     Args:
         filename: file to be created must be a c extension
     """
-    content = [f"#include <stdio.h>", f"#include \"{header}\"\n", f"/**\n*{filename}-\n"
+    content = [f"#include <stdio.h>", f"#include \"\n", f"/**\n*{filename}-\n"
                                              f"* @param\n* @param\n* Description:"
                                              f" \n* Return: Always(0) success\n*/\n",
                "int main()\n{\n\tprintf(\"Welcome\")\n\n}"]
@@ -166,8 +153,6 @@ def file_create(filename=""):
         create_py_main_files(filename)
     elif filename[-2:] == ".c":
         create_c_main_files(filename)
-    elif filename[-2:] == ".h":
-        create_header_files(filename)
     else:
         with open(filename, 'w', encoding='utf-8') as file:
             pass
