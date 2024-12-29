@@ -1,7 +1,9 @@
 # TigoAi - CLI AI Assistant and Source Control
 **Author**: Nwali Ugonna Emmanuel
-**Country**: Nigeria  
-### Chat with Tigo_bot on Telegram 
+**Country**: Nigeria
+
+### Chat with Tigo_bot on Telegram
+
 <a href="https://t.me/TigoGPTBot" target="blank">@Tigo_bot</a>
 <h4>Features</h4>
 <ol>
