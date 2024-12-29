@@ -7,6 +7,7 @@ Originally By Nwali Ugonna Emmanuel (Emmanuel Tigo)
 ###################################################################################################################
     """
 import os
+import platform
 import subprocess
 
 
@@ -18,32 +19,13 @@ def open_files(filename, content):
         file.writelines(content)
 
 
-def is_exists(filename="", content=[]):
-    if content is None:
-        content = []
+def is_exists(filename: str) -> str:
     if os.path.exists(filename):
-        """checks if file exists in the current directory and overwrites when prompted"""
-        overwrite = input(f"{filename} already exists Overwrite?(Y/N): ").lower()
-        if 'y' in overwrite:
-            prototype = input(f"prototype for {filename}: ")
-            content.append(f"{prototype}\n")
-            # with open(filename, 'w', encoding='utf-8') as f:
-            #     # creates file and writes contents to each line of the file
-            #     f.writelines(content)
-            open_files(filename, content)
-            os.chmod(filename, 0o764)
-        elif 'n' in overwrite:
-            pass
-        else:
-            print("invalid input")
+        with open(filename, 'r') as file:
+            content = file.read()
+            return content
     else:
-        prototype = input(f"prototype for {filename}: ")
-        content.append(f"{prototype}\n")
-        # with open(filename, 'w', encoding='utf-8') as f:
-        #     # creates file and writes contents to each line of the file
-        #     f.writelines(content)
-        open_files(filename, content)
-        os.chmod(filename, 0o764)
+        return f"Can't locate the file {filename}"
 
 
 def source_code_create(filename="", prototype=""):
@@ -157,6 +139,35 @@ def file_create(filename=""):
         with open(filename, 'w', encoding='utf-8') as file:
             pass
         print("created an empty file")
+
+
+def file_exec(filename=""):
+    """runs normal files based on file extension
+        Args:
+            filename: file to run
+            if file extension is invalid the program will yell out
+            """
+    if platform.system() == "Windows":
+        if filename[-3:] == '.py':
+            os.system(f'start {filename}')
+        elif filename[-2:] == ".c":
+            create_c_main_files(filename)
+        else:
+            with open(filename, 'w', encoding='utf-8') as file:
+                pass
+            print("created an empty file")
+
+    else:
+        os.system('clear -x')
+    if filename[-3:] == '.py':
+        os.system()
+    elif filename[-2:] == ".c":
+        create_c_main_files(filename)
+    else:
+        with open(filename, 'w', encoding='utf-8') as file:
+            pass
+        print("created an empty file")
+
 
 
 def test_prototype(filename=""):
