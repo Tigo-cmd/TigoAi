@@ -141,32 +141,32 @@ def file_create(filename=""):
         print("created an empty file")
 
 
-def file_exec(filename=""):
-    """runs normal files based on file extension
-        Args:
-            filename: file to run
-            if file extension is invalid the program will yell out
-            """
-    if platform.system() == "Windows":
-        if filename[-3:] == '.py':
-            os.system(f'start {filename}')
-        elif filename[-2:] == ".c":
-            create_c_main_files(filename)
-        else:
-            with open(filename, 'w', encoding='utf-8') as file:
-                pass
-            print("created an empty file")
-
-    else:
-        os.system('clear -x')
-    if filename[-3:] == '.py':
-        os.system()
-    elif filename[-2:] == ".c":
-        create_c_main_files(filename)
-    else:
-        with open(filename, 'w', encoding='utf-8') as file:
-            pass
-        print("created an empty file")
+# def file_exec(filename=""):
+#     """runs normal files based on file extension
+#         Args:
+#             filename: file to run
+#             if file extension is invalid the program will yell out
+#             """
+#     if platform.system() == "Windows":
+#         if filename[-3:] == '.py':
+#             os.system(f'start {filename}')
+#         elif filename[-2:] == ".c":
+#             create_c_main_files(filename)
+#         else:
+#             with open(filename, 'w', encoding='utf-8') as file:
+#                 pass
+#             print("created an empty file")
+#
+#     else:
+#         os.system('clear -x')
+#     if filename[-3:] == '.py':
+#         os.system()
+#     elif filename[-2:] == ".c":
+#         create_c_main_files(filename)
+#     else:
+#         with open(filename, 'w', encoding='utf-8') as file:
+#             pass
+#         print("created an empty file")
 
 
 
