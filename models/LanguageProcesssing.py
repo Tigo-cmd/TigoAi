@@ -6,6 +6,7 @@ such as text similarities, actions etc.
 """
 import spacy
 import os
+
 nlp = spacy.load("en_core_web_lg")  # loads the language vocabulary for similarity and comprehension
 
 
@@ -17,6 +18,13 @@ nlp = spacy.load("en_core_web_lg")  # loads the language vocabulary for similari
 #     'compile or run a file and print output',
 #     'explain something',
 # ]
+
+def instruct(text):
+    return (f"From this text \"{text}\",I want you to look for the name of the file being discussed "
+            f"and return "
+            f"just the name of the file with its extension. "
+            f"Do not include any other words. For example,"
+            f" in the sentence Please open file document.txt you should return just 'document.txt'.")
 
 
 # Function to get the best match command
@@ -84,7 +92,6 @@ def compare_noun(text1: str, text2: str) -> float:
     noun1 = " ".join([token.lemma_ for token in text1 if token.pos_ == "NOUN"])
     noun2 = " ".join([token.lemma_ for token in text2 if token.pos_ == "NOUN"])
     return nlp(noun1).similarity(nlp(noun2))
-
 
 # # Test with a user input
 # user_input = "define love and give examples"
