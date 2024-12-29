@@ -5,10 +5,18 @@ e.g: create, update, debug ETC......
 such as text similarities, actions etc.
 """
 import spacy
-import os
+from typing import List
 
-nlp = spacy.load("en_core_web_lg")  # loads the language vocabulary for similarity and comprehension
+# Declare a global variable for the spaCy model
+nlp = None
 
+
+# Lazy load the spaCy model when needed
+def get_spacy_model():
+    global nlp
+    if nlp is None:
+        nlp = spacy.load("en_core_web_lg")
+    return nlp
 
 # Define the predefined command templates
 # commands = [
@@ -19,6 +27,7 @@ nlp = spacy.load("en_core_web_lg")  # loads the language vocabulary for similari
 #     'explain something',
 # ]
 
+
 def instruct(text):
     return (f"From this text \"{text}\",I want you to look for the name of the file being discussed "
             f"and return "
@@ -28,9 +37,10 @@ def instruct(text):
 
 
 # Function to get the best match command
-def get_best_match(user_input: str, commands: list[str]) -> str:
+async def get_best_match(user_input: str, commands: list[str]) -> str:
     # Process the user input with spaCy
-    user_doc = nlp(user_input)
+    nlp_load = get_spacy_model()
+    user_doc = nlp_load(user_input)
 
     # Store similarities
     best_similarity = 0
@@ -39,7 +49,7 @@ def get_best_match(user_input: str, commands: list[str]) -> str:
     # Compare user input to each command template
     for command in commands:
         # Process each command template with spaCy
-        command_doc = nlp(command)
+        command_doc = nlp_load(command)
 
         # Calculate similarity between user input and the command
         similarity = user_doc.similarity(command_doc)
@@ -52,46 +62,49 @@ def get_best_match(user_input: str, commands: list[str]) -> str:
     return best_match
 
 
-def similarity_comprehension(text1: str, text2: str) -> float:
+async def similarity_comprehension(text1: str, text2: str) -> float:
     """
     uses spacy to compare similarities and returns the average or percentage of confidence
     :param text1: first text to be compared
     :param text2: second text to be compared
     :return: percentage of similarity confidence
     """
-    text1: nlp = nlp(text1)
-    text2: nlp = nlp(text2)
+    nlpl = get_spacy_model()
+    text1 = nlpl(text1)
+    text2  = nlpl(text2)
     return text1.similarity(text2)
 
 
-def compare_verbs(text1: str, text2: str) -> float:
-    """
-    for more confidence and comparison I'd check for verbs also and this function handles
-    :param text1: first text to extract verb and compare
-    :param text2: second text to extract verb and compare
-    :return: float
-    """
-    text1: nlp = nlp(text1)
-    text2: nlp = nlp(text2)
+# async def compare_verbs(text1: str, text2: str) -> float:
+#     """
+#     for more confidence and comparison I'd check for verbs also and this function handles
+#     :param text1: first text to extract verb and compare
+#     :param text2: second text to extract verb and compare
+#     :return: float
+#     """
+#     nlpl = get_spacy_model()
+#     text1 = nlpl(text1)
+#     text2 = nlpl(text2)
+#
+#     verb1 = " ".join([token.lemma_ for token in text1 if token.pos_ == "VERB"])
+#     verb2 = " ".join([token.lemma_ for token in text2 if token.pos_ == "VERB"])
+#     return nlpl(verb1).similarity(nlpl(verb2))
 
-    verb1 = " ".join([token.lemma_ for token in text1 if token.pos_ == "VERB"])
-    verb2 = " ".join([token.lemma_ for token in text2 if token.pos_ == "VERB"])
-    return nlp(verb1).similarity(nlp(verb2))
 
-
-def compare_noun(text1: str, text2: str) -> float:
-    """
-    for more confidence and comparison I'd check for verbs also and this function handles
-    :param text1: first text to extract verb and compare
-    :param text2: second text to extract verb and compare
-    :return: float
-    """
-    text1: nlp = nlp(text1)
-    text2: nlp = nlp(text2)
-
-    noun1 = " ".join([token.lemma_ for token in text1 if token.pos_ == "NOUN"])
-    noun2 = " ".join([token.lemma_ for token in text2 if token.pos_ == "NOUN"])
-    return nlp(noun1).similarity(nlp(noun2))
+# async def compare_noun(text1: str, text2: str) -> float:
+#     """
+#     for more confidence and comparison I'd check for verbs also and this function handles
+#     :param text1: first text to extract verb and compare
+#     :param text2: second text to extract verb and compare
+#     :return: float
+#     """
+#     nlpl = get_spacy_model()
+#     text1 = nlpl(text1)
+#     text2 = nlpl(text2)
+#
+#     noun1 = " ".join([token.lemma_ for token in text1 if token.pos_ == "NOUN"])
+#     noun2 = " ".join([token.lemma_ for token in text2 if token.pos_ == "NOUN"])
+#     return nlpl(noun1).similarity(nlpl(noun2))
 
 # # Test with a user input
 # user_input = "define love and give examples"
