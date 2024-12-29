@@ -21,8 +21,9 @@ import os
 from models.source import TigoGroq, load_dotenv
 from argparse import ArgumentParser, Namespace
 from colorama import Fore, Style, init
-from models.controls import pass_gen, clear_screen
-from models.LanguageProcesssing import similarity_comprehension, get_best_match
+from models.controls import pass_gen, clear_screen, extract_filenames
+from models.LanguageProcesssing import similarity_comprehension, get_best_match, instruct
+from models.helperFunctions import is_exists
 
 load_dotenv()  # typically loads API keys form underlining env file
 client = TigoGroq()  # calls groqAPI client
@@ -58,7 +59,7 @@ def interactive_mode() -> None:
             if "exit" in user_message or "bye" in user_message:
                 print(Fore.BLUE + "Tigo 🧒 > ", client.get_response_from_ai(user_message + " 👋.."))
                 break
-            print(Fore.BLUE + "Tigo 🧒 > ", client.get_response_from_ai(user_message))
+            print(Fore.BLUE + "Tigo 🧒 > ", client.get_response_from_ai(user_message), end="\n")
     except KeyboardInterrupt:
         print("\nProcess interrupted. Exiting...")
 
@@ -70,7 +71,7 @@ def main() -> None:
                                                                                                    "interactive mode")
     entry.add_argument('-p', '--passgen', type=int, nargs='?', metavar="password length", help="password "
                                                                                                "generator")
-    entry.add_argument('text', nargs='+', help="enter A text to to do something")
+    entry.add_argument('text', nargs='?', help="enter A text to to do something")
     args: Namespace = entry.parse_args()
 
     length = args.passgen
@@ -90,10 +91,26 @@ def main() -> None:
 
     if args.text:
         text = ' '.join(args.text)
-        if get_best_match(text, keywords) == keywords[4]:
+        if get_best_match(text, keywords) == keywords[6]:
             print(Fore.YELLOW + "Tigo 🧒 > ", client.get_response_from_ai(text))
         if get_best_match(text, keywords) == keywords[5]:
             print(Fore.LIGHTYELLOW_EX + "Tigo 🧒 > ", client.get_response_from_ai(text))
+        if get_best_match(text, keywords) == keywords[4]:
+            print(Fore.LIGHTYELLOW_EX + "Tigo 🧒 > ", client.get_response_from_ai(text))
+        if get_best_match(text, keywords) == keywords[3]:
+            filename = extract_filenames(text)
+            if 'run' in text or 'compile' in text:
+
+            if len(filename) == 1:
+                print(is_exists(filename[0]))
+            else:
+                for i in filename:
+                    print(is_exists(filename))
+        if get_best_match(text, keywords) == keywords[2]:
+            filename = client.get_response_from_ai(instruct(text))
+            content = is_exists(filename)
+            error = f" debug this error {content}"
+            print(Fore.LIGHTYELLOW_EX + "Tigo 🧒 > ", client.get_response_from_ai(error))
 
 
 if __name__ == '__main__':
