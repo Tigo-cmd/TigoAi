@@ -55,7 +55,7 @@ class TigoGroq:
         """
         pass
 
-    def get_response_from_ai(self, message: str):
+    async def get_response_from_ai(self, message: str):
         """returns response from the AI and messages to print to standard output"""
         self.context.append({"role": "user", "content": message})
         completion = self.client.chat.completions.create(
