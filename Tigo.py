@@ -35,9 +35,6 @@ keywords: list[str] = [
     'analyze a giving error',
     'debug a file with some error to be provided',
     'compile or run a file and print output',
-    'explain something',
-    'appreciation to show gratitude',
-    'commendation on a task done'
 ]
 
 
@@ -97,14 +94,7 @@ async def main() -> None:
 
         # Asynchronously get the best match
         best_match = await get_best_match(text, keywords)
-
-        if best_match == keywords[6]:
-            print(Fore.YELLOW + "Tigo 🧒 > ", await client.get_response_from_ai(text))
-        elif best_match == keywords[5]:
-            print(Fore.LIGHTYELLOW_EX + "Tigo 🧒 > ", await client.get_response_from_ai(text))
-        elif best_match == keywords[4]:
-            print(Fore.LIGHTYELLOW_EX + "Tigo 🧒 > ", await client.get_response_from_ai(text))
-        elif best_match == keywords[3]:
+        if best_match == keywords[3]:
             filename = extract_filenames(text)
             if 'run' in text.lower():
                 for i in filename:
@@ -148,6 +138,8 @@ async def main() -> None:
             else:
                 for i in range(0, len(filename)):
                     file_exec(filename[i], details['code'][i])
+        else:
+            print(Fore.YELLOW + "Tigo 🧒 > ", await client.get_response_from_ai(text))
 
 
 if __name__ == '__main__':
