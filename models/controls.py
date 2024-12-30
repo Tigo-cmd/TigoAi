@@ -32,6 +32,34 @@ def extract_filenames(text):
     return filenames
 
 
+def extract_code(response: str):
+    """
+    extracts important detail responses for the Ai and stores
+    Args:
+        response (str): The string containing the response with code and instructions.
+    Returns:
+        dict: A dictionary containing extracted code, file name, and run command.
+    """
+    extracted_details = {}
+
+    # Extract the Python code using a regular expression that looks for text between triple backticks
+    code_match = re.search(r'```(.*?)```', response, re.DOTALL)
+    if code_match:
+        extracted_details['code'] = code_match.group(1).strip()
+
+    # Extract the file name (e.g., fibonacci.py)
+    file_name_match = re.search(r'file named `([^`]+)`', response)
+    if file_name_match:
+        extracted_details['file_name'] = file_name_match.group(1)
+
+    # Extract the command to run the file (e.g., python fibonacci.py)
+    command_match = re.search(r'`(\$ python [^`]+)`', response)
+    if command_match:
+        extracted_details['run_command'] = command_match.group(1).strip()
+
+    return extracted_details
+
+
 def pass_gen(length: int = 16) -> str:
     """
     just added some sweet password gen functionality just to spice up this tool
