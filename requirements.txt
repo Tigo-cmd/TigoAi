@@ -6,3 +6,4 @@ python-telegram-bot
 spacy
 tf-keras~=2.17.0
 sh
+nodemon
