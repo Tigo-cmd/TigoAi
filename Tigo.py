@@ -23,9 +23,9 @@ import asyncio
 from models.source import TigoGroq, load_dotenv
 from argparse import ArgumentParser, Namespace
 from colorama import Fore, Style, init
-from models.controls import pass_gen, clear_screen, extract_filenames, run_file
+from models.controls import pass_gen, clear_screen, extract_filenames, run_file, extract_code
 from models.LanguageProcesssing import similarity_comprehension, get_best_match, instruct
-from models.helperFunctions import is_exists
+from models.helperFunctions import is_exists, file_exec
 
 load_dotenv()  # typically loads API keys form underlining env file
 client = TigoGroq()  # calls groqAPI client
@@ -134,11 +134,26 @@ async def main() -> None:
                     else:
                         error = f" debug this error {text} {content}"
                         print(Fore.LIGHTYELLOW_EX + "Tigo 🧒 > ", await client.get_response_from_ai(error))
+        elif best_match == keywords[0]:
+            response = await client.get_response_from_ai(text)
+            print(response)
+            details = extract_code(response)
+            print(details['code'])
+            filename = extract_filenames(details['file_name'])
+            print(filename)
+            if not filename:
+                filename = extract_filenames(response)
+            if len(filename) == 1:
+                file_exec(filename[0], details['code'])
+            else:
+                for i in range(0, len(filename)):
+                    file_exec(filename[i], details['code'][i])
 
 
 if __name__ == '__main__':
     try:
         # Run the main function asynchronously
         asyncio.run(main())
+        print("Done!")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
